@@ -1,0 +1,93 @@
+<html>
+<head>
+  <title>django-chunked-upload demo</title>
+  <meta http-equiv="content-type" content="text/html;charset=utf-8">
+  <meta http-equiv="content-language" content="en">
+  <meta http-equiv="content-language" content="en-us">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="/static/css/demo.css">
+
+  <script src="/static/js/jquery.js"></script>
+  <script src="/static/js/jquery.ui.widget.js"></script>
+  <!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
+  <script src="/static/js/jquery.iframe-transport.js"></script>
+  <!-- The basic File Upload plugin -->
+  <script src="/static/js/jquery.fileupload.js"></script>
+  <!-- Calculate md5 -->
+  <script src="/static/js/spark-md5.js"></script>
+</head>
+<body>
+
+  {% csrf_token %}
+  <input id="chunked_upload" type="file" name="the_file">
+
+  <p id="progress"></p>
+  <div id="messages"></div>
+
+  <script type="text/javascript">
+    var md5 = "",
+        csrf = $("input[name='csrfmiddlewaretoken']")[0].value,
+        form_data = [{"name": "csrfmiddlewaretoken", "value": csrf}];
+    function calculate_md5(file, chunk_size) {
+      var slice = File.prototype.slice || File.prototype.mozSlice || File.prototype.webkitSlice,
+          chunks = chunks = Math.ceil(file.size / chunk_size),
+          current_chunk = 0,
+          spark = new SparkMD5.ArrayBuffer();
+      function onload(e) {
+        spark.append(e.target.result);  // append chunk
+        current_chunk++;
+        if (current_chunk < chunks) {
+          read_next_chunk();
+        } else {
+          md5 = spark.end();
+        }
+      };
+      function read_next_chunk() {
+        var reader = new FileReader();
+        reader.onload = onload;
+        var start = current_chunk * chunk_size,
+            end = Math.min(start + chunk_size, file.size);
+        reader.readAsArrayBuffer(slice.call(file, start, end));
+      };
+      read_next_chunk();
+    }
+    $("#chunked_upload").fileupload({
+      url: "{% url 'api_chunked_upload' %}",
+      dataType: "json",
+      maxChunkSize: 100000, // Chunks of 100 kB
+      formData: form_data,
+      add: function(e, data) { // Called before starting upload
+        $("#mesages").empty();
+        calculate_md5(data.files[0], 100000);  // Again, chunks of 100 kB
+        data.submit();
+      },
+      chunkdone: function (e, data) { // Called after uploading each chunk
+        if (form_data.length < 2) {
+          form_data.push(
+            {"name": "upload_id", "value": data.result.upload_id}
+          );
+        }
+        $("#messages").append($('<p>').text(JSON.stringify(data.result)));
+        var progress = parseInt(data.loaded / data.total * 100.0, 10);
+        $("#progress").text(Array(progress).join("=") + "> " + progress + "%");
+      },
+      done: function (e, data) { // Called when the file has completely uploaded
+        $.ajax({
+          type: "POST",
+          url: "{% url 'api_chunked_upload_complete' %}",
+          data: {
+            csrfmiddlewaretoken: csrf,
+            upload_id: data.result.upload_id,
+            md5: md5
+          },
+          dataType: "json",
+          success: function(data) {
+            $("#messages").append($('<p>').text(JSON.stringify(data)));
+          }
+        });
+      },
+    });
+  </script>
+
+</body>
+</html>
