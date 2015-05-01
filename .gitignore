@@ -11,3 +11,5 @@ develop-eggs
 .installed.cfg
 pip-log.txt
 .DS_Store
+demo/migrations
+media
