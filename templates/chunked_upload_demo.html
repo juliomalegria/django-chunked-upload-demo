@@ -57,7 +57,14 @@
       maxChunkSize: 100000, // Chunks of 100 kB
       formData: form_data,
       add: function(e, data) { // Called before starting upload
-        $("#mesages").empty();
+        $("#messages").empty();
+        // delete uploaded file message
+        for (var i = 0; i < form_data.length; ++i)
+          if ("name" in form_data[i]&& form_data[i]["name"] === "csrfmiddlewaretoken"){
+            form_data.splice(i+1, form_data.length-i-0);
+            form_data.splice(0, i);
+            break;
+          }
         calculate_md5(data.files[0], 100000);  // Again, chunks of 100 kB
         data.submit();
       },
