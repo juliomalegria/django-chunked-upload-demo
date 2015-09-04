@@ -3,7 +3,13 @@ django-chunked-upload demo
 
 This is a Django demo project of the `django-chunked-upload <https://github.com/juliomalegria/django-chunked-upload>`__ module.
 
-To try it:
+Live demo
+---------
+
+To see a live demo of the project go to: `django-chunked-upload.juliomalegria.com <http://django-chunked-upload.juliomalegria.com>`__.
+
+Try it locally
+--------------
 
 1. Clone the repo.
 
