@@ -36,4 +36,5 @@ class MyChunkedUploadCompleteView(ChunkedUploadCompleteView):
         pass
 
     def get_response_data(self, chunked_upload, request):
-        return {'message': 'You successfully uploaded this file'}
+        return {'message': ("You successfully uploaded '%s' (%s bytes)!" %
+                            (chunked_upload.filename, chunked_upload.offset))}
