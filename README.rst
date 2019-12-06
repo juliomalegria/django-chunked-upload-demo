@@ -30,7 +30,7 @@ Try it locally
 
 ::
 
-    ./manage.py syncdb --noinput
+    ./manage.py migrate
 
 4. Run the server.
 

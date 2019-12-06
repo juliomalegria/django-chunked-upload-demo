@@ -1,21 +1,22 @@
-from django.conf import settings
-from django.conf.urls import patterns, url
+"""chunked_upload_demo URL Configuration
 
-from demo.views import (
-    ChunkedUploadDemo, MyChunkedUploadView, MyChunkedUploadCompleteView
-)
+The `urlpatterns` list routes URLs to views. For more information please see:
+    https://docs.djangoproject.com/en/2.2/topics/http/urls/
+Examples:
+Function views
+    1. Add an import:  from my_app import views
+    2. Add a URL to urlpatterns:  path('', views.home, name='home')
+Class-based views
+    1. Add an import:  from other_app.views import Home
+    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
+Including another URLconf
+    1. Import the include() function: from django.urls import include, path
+    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
+"""
+from django.contrib import admin
+from django.urls import path, include
 
-
-urlpatterns = patterns(
-    '',
-    url(r'^/?$',
-        ChunkedUploadDemo.as_view(), name='chunked_upload'),
-    url(r'^api/chunked_upload/?$',
-        MyChunkedUploadView.as_view(), name='api_chunked_upload'),
-    url(r'^api/chunked_upload_complete/?$',
-        MyChunkedUploadCompleteView.as_view(),
-        name='api_chunked_upload_complete'),
-    url(r'^static/(.*)$',
-        'django.views.static.serve',
-        {'document_root': settings.STATIC_ROOT, 'show_indexes': False}),
-)
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', include('demo.urls'))
+]
