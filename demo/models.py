@@ -1,7 +1,6 @@
 from chunked_upload.models import ChunkedUpload
 
-
-class MyChunkedUpload(ChunkedUpload):
-    pass
-# Override the default ChunkedUpload to make the `user` field nullable
-MyChunkedUpload._meta.get_field('user').null = True
+# 'ChunkedUpload' class provides almost everything for you.
+# if you need to tweak it little further, create a model class
+# by inheriting "chunked_upload.models.AbstractChunkedUpload" class
+MyChunkedUpload = ChunkedUpload
